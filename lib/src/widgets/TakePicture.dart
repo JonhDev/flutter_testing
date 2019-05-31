@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../routes.dart';
+import 'package:testing_app/src/pages/picture_page.dart';
+import 'package:location/location.dart';
 
 class TakePictureWidget extends StatefulWidget {
   final CameraDescription camera;
@@ -20,6 +20,7 @@ class _TakePictureWidgetState extends State<TakePictureWidget> {
 
   CameraController _controller;
   Future<void> _initializeControllerFuture;
+  final location = new Location();
 
   @override
   void initState() {
@@ -82,11 +83,16 @@ class _TakePictureWidgetState extends State<TakePictureWidget> {
       await _initializeControllerFuture;
       final path = join(
         (await getTemporaryDirectory()).path,
-        "coolPhoto.png"
+        '${DateTime.now()}.png'
       );
-      
+      var userLocation = await location.getLocation();
       await _controller.takePicture(path);
-      Navigator.pushNamed(this.context, IMAGE_VIEW);
+      Navigator.push(
+              this.context,
+              MaterialPageRoute(
+                builder: (context) => PicturePage(path: path, geoLocation: 'Latitude: ${userLocation["latitude"]}, Longitude: ${userLocation["longitude"]}')
+              ),
+            );
     } catch(e) {
       print(e);
     }
